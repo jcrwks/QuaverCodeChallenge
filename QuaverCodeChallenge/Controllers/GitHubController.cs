@@ -32,8 +32,10 @@ namespace QuaverCodeChallenge.Controllers
             {
                 IList<string> list = new List<string>();
                 list = _githubService.GetAPI();
+
                 if (list.Count != list.Distinct().Count())
                     listContainsDup = true;
+
                 ViewData["list" + i.ToString()] = listContainsDup;
             }
 

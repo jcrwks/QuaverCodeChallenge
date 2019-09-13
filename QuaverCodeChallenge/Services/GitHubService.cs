@@ -9,9 +9,10 @@ namespace QuaverCodeChallenge.Services
     public class GitHubService
     {
         // Global variables 
-        Encryption encryption = new Encryption();
-        string folderPath = @"C:\QuaverCode";
-        string fullPath = @"C:\QuaverCode\Text.txt";
+        private Encryption encryption = new Encryption();
+
+        private string folderPath = @"C:\QuaverCode";
+        private string fullPath = @"C:\QuaverCode\Text.txt";
 
         public IList<string> GetAPI()
         {
@@ -45,12 +46,13 @@ namespace QuaverCodeChallenge.Services
 
             // Get the Count of files currently in the text file
             return ReadFromFile();
-
         }
 
         // Writes to file
         private void WriteToFile(IList<string> currentList, IList<string> itemsToWrite)
         {
+            // looks like we are appending data here - however the file is freshly created each time the routine is run
+            // not sure if this is intentional or not so will assume you only want is found on the 3 calls to GITHUB in the output file
             using (StreamWriter writer = new StreamWriter(fullPath, true))
             {
                 foreach (var i in itemsToWrite)
@@ -67,23 +69,23 @@ namespace QuaverCodeChallenge.Services
         // Reads from file
         private IList<string> ReadFromFile()
         {
-            int counter = 0;
             string ln;
+            
+            // initialize return variable
+            IList<string> repoNames = new List<string>();
 
             // Read from file
             using (StreamReader file = new StreamReader(fullPath))
             {
-                IList<string> repoNames = new List<string>();
                 while ((ln = file.ReadLine()) != null)
                 {
                     repoNames.Add(encryption.DecryptString(ln));
-                    counter++;
                 }
-                file.Close();
-                return repoNames;
-            }
-        }
 
+                file.Close();
+            }
+            return repoNames;
+        }
 
         // Sets up directory and textfile for project.
         public void SetUpDirectoryAndTextFile()
