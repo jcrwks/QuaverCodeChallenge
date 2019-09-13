@@ -1,0 +1,14 @@
+﻿
+@{
+    ViewData["Title"] = "Git Hub API";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-controller="GitHub" asp-action="StartPullingFromGithubAPI" method="get">
+    <div class="row d-flex">
+        <div class="form-group">
+            <label for="txtEmail">Start grabbing data from Github API for 10 seconds</label>
+            <button type="submit" class="btn btn-primary">Contact Github API</button>
+        </div>
+    </div>
+</form>
