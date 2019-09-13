@@ -22,8 +22,12 @@ namespace QuaverCodeChallenge.Controllers
         [HttpGet]
         public IActionResult StartPullingFromGithubAPI()
         {
+            // initialize list contains duplicates to false
             bool listContainsDup = false;
+
+            // make sure local folder and file exists
             _githubService.SetUpDirectoryAndTextFile();
+
             for (int i = 0; i < 3; i++)
             {
                 IList<string> list = new List<string>();

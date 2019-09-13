@@ -76,7 +76,7 @@ namespace QuaverCodeChallenge.Services
                 IList<string> repoNames = new List<string>();
                 while ((ln = file.ReadLine()) != null)
                 {
-                    repoNames.Add(ln.ToLower());
+                    repoNames.Add(encryption.DecryptString(ln));
                     counter++;
                 }
                 file.Close();
@@ -92,15 +92,15 @@ namespace QuaverCodeChallenge.Services
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
+            // If file exists go ahead and delete it
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
-                FileStream f = File.Create(fullPath);
-                f.Close();
             }
-            else
+
+            // although the FileStream.Close automatically disposes the object it's good form to use the using statement anyway
+            using (FileStream f = File.Create(fullPath))
             {
-                FileStream f = File.Create(fullPath);
                 f.Close();
             }
         }
