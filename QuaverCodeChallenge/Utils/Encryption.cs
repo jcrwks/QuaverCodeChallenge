@@ -5,26 +5,40 @@ namespace QuaverCodeChallenge.Utils
 {
     public class Encryption
     {
-        public string DecryptString(string encrString)
+        public string DecryptString(string strEncrypted)
         {
             byte[] b;
-            string decrypted;
+            string decrypted = "";
             try
             {
-                b = Convert.FromBase64String(encrString);
+                b = Convert.FromBase64String(strEncrypted);
                 decrypted = ASCIIEncoding.ASCII.GetString(b);
             }
-            catch (FormatException fe)
+            catch (FormatException)
             {
                 decrypted = "";
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                // handle exception here
             }
             return decrypted;
         }
 
-        public string EnryptString(string strEncrypted)
+        public string EncryptString(string strEncrypted)
         {
             byte[] b = ASCIIEncoding.ASCII.GetBytes(strEncrypted);
-            string encrypted = Convert.ToBase64String(b);
+            string encrypted = "";
+            try
+            {
+                encrypted = Convert.ToBase64String(b);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                // handle exception here
+            }
             return encrypted;
         }
     }

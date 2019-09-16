@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using QuaverCodeChallenge.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -19,23 +20,32 @@ namespace QuaverCodeChallenge.Services
             string content;
             IList<string> repoNames = new List<string>();
 
-            // Pull data from Github
-            HttpWebRequest request = WebRequest.Create("https://api.github.com/search/repositories?q=language:php&sort=stars&order=desc&per_page=5") as HttpWebRequest;
-            request.UserAgent = "TestApp";
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            try
             {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                content = reader.ReadToEnd();
+                // Pull data from Github
+                HttpWebRequest request = WebRequest.Create("https://api.github.com/search/repositories?q=language:php&sort=stars&order=desc&per_page=5") as HttpWebRequest;
+
+                request.UserAgent = "TestApp";
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
+                    content = reader.ReadToEnd();
+                }
+
+                // Convert data to JObject
+                JObject json = JObject.Parse(content);
+
+                // Loop though items looking for URL's and add to a list
+                var jsonItemList = json["items"];
+                foreach (var i in jsonItemList)
+                {
+                    repoNames.Add((i["owner"]["url"]).ToString().ToUpper());
+                }
             }
-
-            // Convert data to JObject
-            JObject json = JObject.Parse(content);
-
-            // Loop though items looking for URL's and add to a list
-            var jsonItemList = json["items"];
-            foreach (var i in jsonItemList)
+            catch (Exception ex)
             {
-                repoNames.Add((i["owner"]["url"]).ToString().ToUpper());
+                string message = ex.Message;
+                // add exception handling here
             }
 
             // Get what url's are currentyly stored in the text file
@@ -52,15 +62,21 @@ namespace QuaverCodeChallenge.Services
         private void WriteToFile(IList<string> currentList, IList<string> itemsToWrite)
         {
             // looks like we are appending data here - however the file is freshly created each time the routine is run
-            // not sure if this is intentional or not so will assume you only want is found on the 3 calls to GITHUB in the output file
+            // not sure if this is intentional or not so will assume you only want the top 5 from what is found on the 3 calls to GITHUB in the output file
             using (StreamWriter writer = new StreamWriter(fullPath, true))
             {
+                int index = 0;
                 foreach (var i in itemsToWrite)
                 {
                     if (!currentList.Contains(i))
                     {
-                        writer.WriteLine(encryption.EnryptString(i));
+                        writer.WriteLine(encryption.EncryptString(i));
                     }
+                    else
+                    {
+                        writer.WriteLine(encryption.EncryptString(currentList[index]));
+                    }
+                    index++;
                 }
                 writer.Close();
             }
@@ -94,16 +110,13 @@ namespace QuaverCodeChallenge.Services
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
-            // If file exists go ahead and delete it
-            if (File.Exists(fullPath))
+            // If file doesn't exist go ahead and create it
+            if (!File.Exists(fullPath))
             {
-                File.Delete(fullPath);
-            }
-
-            // although the FileStream.Close automatically disposes the object it's good form to use the using statement anyway
-            using (FileStream f = File.Create(fullPath))
-            {
-                f.Close();
+                using (FileStream f = File.Create(fullPath))
+                {
+                    f.Close();
+                }
             }
         }
     }
